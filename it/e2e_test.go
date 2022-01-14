@@ -1,4 +1,4 @@
-///go:build it
+//go:build it
 
 package it
 
@@ -15,8 +15,8 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/konrads/log-monitor-service/cmd/dcl"
 	"github.com/konrads/log-monitor-service/pkg/data"
+	"github.com/konrads/log-monitor-service/pkg/dcl"
 	"github.com/konrads/log-monitor-service/pkg/model"
 	"github.com/ory/dockertest/v3"
 	"github.com/sirupsen/logrus"

@@ -7,6 +7,8 @@ import (
 	"github.com/konrads/log-monitor-service/pkg/model"
 )
 
+// Message/severity reader, currently used for test purposes
+
 type MessageReader interface {
 	ReadAllMessages(context.Context) ([]model.Message, error)
 	ReadAllStats(context.Context) ([]model.MessageSeverity, error)

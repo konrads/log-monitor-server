@@ -13,6 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Orchestration mechanism for goroutine driven log aggregation
+
 func Orchestrate(ctx context.Context, config model.Config, in <-chan model.BatchEvent, db *sql.DB) {
 	writer := data.NewMessageWriterImpl(db)
 	flushChan := RunScheduler(ctx, config)
@@ -28,6 +30,7 @@ func OrchestrateFromEnv(ctx context.Context, config model.Config, in <-chan mode
 	Orchestrate(ctx, config, in, db)
 }
 
+// Scheduler for issuing `flush` events.
 func RunScheduler(ctx context.Context, config model.Config) <-chan struct{} {
 	flush := make(chan struct{})
 	go func(ctx context.Context) {
@@ -84,6 +87,7 @@ func RunMessageBatcher(ctx context.Context, config model.Config, in <-chan model
 	return batchedChan
 }
 
+// Persister process that stores asyn batches of messages
 func RunPersister(ctx context.Context, writer data.MessageWriter, in <-chan model.PersistEvent) {
 	go func(ctx context.Context, in <-chan model.PersistEvent) {
 		for {

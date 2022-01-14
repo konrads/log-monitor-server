@@ -10,6 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Message and severity writer
+// Inserts a batch in 1 go, calculates severities and inserts them, or if exist - bumps the counts.
+// The message/severity write is done within a transaction
+
 type stringTuple struct {
 	x1, x2 string
 }
