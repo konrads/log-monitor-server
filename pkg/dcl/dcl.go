@@ -32,21 +32,22 @@ func OrchestrateFromEnv(ctx context.Context, config model.Config, in <-chan mode
 
 // Scheduler for issuing `flush` events.
 func RunScheduler(ctx context.Context, config model.Config) <-chan struct{} {
-	flush := make(chan struct{})
-	go func(ctx context.Context) {
+	flushChan := make(chan struct{})
+	go func(ctx context.Context, flushChan chan<- struct{}) {
+		defer close(flushChan)
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			default:
 				// send flush message
-				flush <- struct{}{}
+				flushChan <- struct{}{}
 				time.Sleep(config.FlushFreq)
 				logrus.Info(`Tick...`)
 			}
 		}
-	}(ctx)
-	return flush
+	}(ctx, flushChan)
+	return flushChan
 }
 
 func RunMessageBatcher(ctx context.Context, config model.Config, in <-chan model.BatchEvent, flush <-chan struct{}) <-chan model.PersistEvent {
@@ -54,6 +55,7 @@ func RunMessageBatcher(ctx context.Context, config model.Config, in <-chan model
 	batchSize := int(config.BatchSize)
 	go func(ctx context.Context, batchedChan chan<- model.PersistEvent) {
 		backlog := []model.Message{}
+		defer close(batchedChan)
 		for {
 			select {
 			case <-ctx.Done():
@@ -87,7 +89,7 @@ func RunMessageBatcher(ctx context.Context, config model.Config, in <-chan model
 	return batchedChan
 }
 
-// Persister process that stores asyn batches of messages
+// Persister process that stores async batches of messages
 func RunPersister(ctx context.Context, writer data.MessageWriter, in <-chan model.PersistEvent) {
 	go func(ctx context.Context, in <-chan model.PersistEvent) {
 		for {
